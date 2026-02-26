@@ -1,12 +1,682 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>YLSSEO Notes</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>GEO：如何让你的内容进入 Google AI Overview | YLSSEO Notes</title>
+    <meta name="description" content="Google 的 AI Overview 不是一个单一模型，而是一个多步骤筛选系统。本文基于 Google 官方文档和可观察行为展开分析。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --color-bg: #FAFAF7;
+            --color-surface: #FFFFFF;
+            --color-text: #1A1A1A;
+            --color-text-secondary: #555555;
+            --color-accent: #2D5F2D;
+            --color-accent-light: #E8F0E8;
+            --color-accent-warm: #8B6914;
+            --color-border: #E0DDD5;
+            --color-border-light: #EEECE6;
+            --color-tag-fact: #2D5F2D;
+            --color-tag-infer: #8B6914;
+            --color-tag-unknown: #8B4049;
+            --font-serif: 'Noto Serif SC', 'Georgia', serif;
+            --font-sans: 'Noto Sans SC', 'Helvetica Neue', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --max-width: 780px;
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2.5rem;
+            --space-2xl: 4rem;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 17px;
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.8;
+            font-weight: 400;
+        }
+
+        /* ── Header ── */
+        .site-header {
+            border-bottom: 1px solid var(--color-border);
+            padding: var(--space-md) 0;
+            background: var(--color-surface);
+        }
+
+        .site-header-inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 var(--space-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .site-logo {
+            font-family: var(--font-serif);
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: var(--color-accent);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+
+        .site-nav a {
+            font-size: 0.82rem;
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            margin-left: var(--space-lg);
+            transition: color 0.2s;
+        }
+
+        .site-nav a:hover {
+            color: var(--color-accent);
+        }
+
+        /* ── Article Hero ── */
+        .article-hero {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: var(--space-2xl) var(--space-lg) var(--space-xl);
+        }
+
+        .article-hero .label {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--color-accent);
+            margin-bottom: var(--space-md);
+            display: inline-block;
+            background: var(--color-accent-light);
+            padding: 0.3em 0.8em;
+            border-radius: 3px;
+        }
+
+        .article-hero h1 {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            font-weight: 900;
+            line-height: 1.3;
+            letter-spacing: -0.02em;
+            color: var(--color-text);
+            margin-bottom: var(--space-lg);
+        }
+
+        .article-hero .subtitle {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--color-text-secondary);
+            font-weight: 300;
+            max-width: 640px;
+        }
+
+        .article-meta {
+            margin-top: var(--space-xl);
+            padding-top: var(--space-lg);
+            border-top: 1px solid var(--color-border-light);
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            display: flex;
+            gap: var(--space-xl);
+        }
+
+        .article-meta strong {
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        /* ── Article Body ── */
+        .article-body {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 var(--space-lg) var(--space-2xl);
+        }
+
+        .article-body p {
+            margin-bottom: var(--space-lg);
+            font-size: 1rem;
+            line-height: 1.85;
+        }
+
+        .article-body h2 {
+            font-family: var(--font-serif);
+            font-size: 1.55rem;
+            font-weight: 700;
+            margin-top: var(--space-2xl);
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-sm);
+            border-bottom: 2px solid var(--color-accent);
+            color: var(--color-text);
+            letter-spacing: -0.01em;
+            line-height: 1.4;
+        }
+
+        .article-body h3 {
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: var(--space-xl);
+            margin-bottom: var(--space-md);
+            color: var(--color-text);
+            line-height: 1.4;
+        }
+
+        .article-body h4 {
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            font-weight: 700;
+            margin-top: var(--space-lg);
+            margin-bottom: var(--space-sm);
+            color: var(--color-accent);
+        }
+
+        .article-body strong {
+            font-weight: 700;
+            color: var(--color-text);
+        }
+
+        .article-body a {
+            color: var(--color-accent);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-thickness: 1px;
+            transition: color 0.2s;
+        }
+
+        .article-body a:hover {
+            color: var(--color-accent-warm);
+        }
+
+        .article-body ul, .article-body ol {
+            margin-bottom: var(--space-lg);
+            padding-left: 1.4em;
+        }
+
+        .article-body li {
+            margin-bottom: var(--space-sm);
+            line-height: 1.8;
+        }
+
+        .article-body li::marker {
+            color: var(--color-accent);
+        }
+
+        /* ── Evidence Table ── */
+        .evidence-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--space-lg) 0 var(--space-xl);
+            font-size: 0.92rem;
+        }
+
+        .evidence-table td {
+            padding: var(--space-md) var(--space-lg);
+            border-bottom: 1px solid var(--color-border-light);
+            vertical-align: top;
+            line-height: 1.7;
+        }
+
+        .evidence-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .evidence-tag {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            padding: 0.2em 0.7em;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+        .tag-fact {
+            background: #E8F0E8;
+            color: var(--color-tag-fact);
+        }
+
+        .tag-infer {
+            background: #FDF4E0;
+            color: var(--color-tag-infer);
+        }
+
+        .tag-unknown {
+            background: #F5E8EA;
+            color: var(--color-tag-unknown);
+        }
+
+        /* ── Callout Box ── */
+        .callout {
+            background: var(--color-surface);
+            border-left: 3px solid var(--color-accent);
+            padding: var(--space-lg) var(--space-xl);
+            margin: var(--space-xl) 0;
+            border-radius: 0 6px 6px 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+
+        .callout p {
+            margin-bottom: var(--space-sm);
+            font-size: 0.95rem;
+        }
+
+        .callout p:last-child {
+            margin-bottom: 0;
+        }
+
+        .callout strong {
+            color: var(--color-accent);
+        }
+
+        /* ── Strategy Cards ── */
+        .strategy-section {
+            margin: var(--space-xl) 0;
+        }
+
+        .strategy-level {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.3em 0.8em;
+            border-radius: 3px;
+            display: inline-block;
+            margin-bottom: var(--space-md);
+        }
+
+        .level-high {
+            background: #E8F0E8;
+            color: var(--color-tag-fact);
+        }
+
+        .level-mid {
+            background: #FDF4E0;
+            color: var(--color-tag-infer);
+        }
+
+        .level-low {
+            background: #F5E8EA;
+            color: var(--color-tag-unknown);
+        }
+
+        .strategy-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border-light);
+            border-radius: 6px;
+            padding: var(--space-lg) var(--space-xl);
+            margin-bottom: var(--space-md);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .strategy-card h4 {
+            margin-top: 0;
+            font-size: 0.95rem;
+        }
+
+        .strategy-card p {
+            font-size: 0.92rem;
+            margin-bottom: var(--space-sm);
+        }
+
+        .strategy-card p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ── Blockquote ── */
+        .article-body blockquote {
+            border-left: 3px solid var(--color-border);
+            padding-left: var(--space-lg);
+            margin: var(--space-xl) 0;
+            color: var(--color-text-secondary);
+            font-style: italic;
+        }
+
+        /* ── Divider ── */
+        .section-divider {
+            border: none;
+            height: 1px;
+            background: var(--color-border-light);
+            margin: var(--space-2xl) 0;
+        }
+
+        /* ── Conclusion Box ── */
+        .conclusion-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-md);
+            margin: var(--space-xl) 0;
+        }
+
+        .conclusion-item {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border-light);
+            border-radius: 6px;
+            padding: var(--space-lg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .conclusion-item h4 {
+            margin-top: 0;
+            margin-bottom: var(--space-sm);
+        }
+
+        .conclusion-item p {
+            font-size: 0.92rem;
+            margin-bottom: var(--space-xs);
+        }
+
+        /* ── Footer ── */
+        .site-footer {
+            border-top: 1px solid var(--color-border);
+            padding: var(--space-xl) 0;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            background: var(--color-surface);
+        }
+
+        .site-footer a {
+            color: var(--color-accent);
+            text-decoration: none;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            html { font-size: 15.5px; }
+            .article-hero h1 { font-size: 1.7rem; }
+            .article-hero { padding: var(--space-xl) var(--space-md) var(--space-lg); }
+            .article-body { padding: 0 var(--space-md) var(--space-xl); }
+            .article-meta { flex-direction: column; gap: var(--space-sm); }
+            .evidence-table td { padding: var(--space-sm) var(--space-md); font-size: 0.85rem; }
+            .callout { padding: var(--space-md) var(--space-lg); }
+            .strategy-card { padding: var(--space-md) var(--space-lg); }
+        }
+    </style>
 </head>
 <body>
-  <h1>YLSSEO Notes</h1>
-  <p>GEO：<a href="https://www.ylsseo.com/geo/">https://www.ylsseo.com/geo/</a></p>
+
+<!-- Header -->
+<header class="site-header">
+    <div class="site-header-inner">
+        <a href="https://www.ylsseo.com/" class="site-logo">YLSSEO Notes</a>
+        <nav class="site-nav">
+            <a href="https://www.ylsseo.com/geo/">GEO</a>
+        </nav>
+    </div>
+</header>
+
+<!-- Hero -->
+<section class="article-hero">
+    <span class="label">GEO 深度解析</span>
+    <h1>Google AI Overview 的底层筛选逻辑：你的内容如何被选中</h1>
+    <p class="subtitle">Google 的 AI Overview 不是一个单一模型，而是一个多步骤筛选系统。你的内容能否被引用，取决于三个环节：能否进入候选池、能否被正确提取、是否有不可替代的引用价值。</p>
+    <div class="article-meta">
+        <span>作者：<strong>鸭老师SEO</strong></span>
+        <span>来源：<strong><a href="https://www.ylsseo.com/geo/" style="font-size:inherit">ylsseo.com/geo</a></strong></span>
+    </div>
+</section>
+
+<!-- Body -->
+<article class="article-body">
+
+    <p>本文基于 Google 官方文档和可观察行为展开分析，并明确标注每个论点的置信度——哪些是已公开确认的事实，哪些是合理推断，哪些目前仍不确定。</p>
+
+    <!-- Section 1 -->
+    <h2>一、先搞清楚底层逻辑：AI Overview 不是一个模型</h2>
+
+    <p>很多 SEO 从业者在谈 GEO（Generative Engine Optimization）时，仍然把 AI Overview 当成一个类似精选摘要（Featured Snippet）的东西来优化。这个认知框架本身就是错的。</p>
+
+    <p>AI Overview 的底层是 Gemini 系列大模型，但它不是单次调用。Google 官方已经公开确认它使用了<strong>多 Agent 架构</strong>和<strong>链式推理（Chained Reasoning）</strong>。这意味着你的内容需要通过多个筛选环节，而不是单一的相关性评分。</p>
+
+    <h3>1.1 大模型的基本工作方式</h3>
+
+    <p>理解这一点对实战有直接意义。当前主流大模型在架构层面通常采用自回归 Transformer，Gemini 被业界普遍认为属于此类——但 Google 未完整公开其技术论文，以下描述基于行业共识。</p>
+
+    <p>自回归模型在生成过程中，每一步预测都基于完整的已有上下文，但不会回头修改已经生成的 token。这一特性对内容结构有实际影响：</p>
+
+    <ul>
+        <li>前置信息更容易形成语义锚点，影响后续 token 的预测方向</li>
+        <li>结构清晰的页面让模型在早期就能建立正确的语义框架</li>
+        <li>这不是说后半段内容无效，而是说前半段的质量对整体理解影响更大</li>
+    </ul>
+
+    <h3>1.2 AI Overview Pipeline 的分层结构</h3>
+
+    <p>基于 Google 公开信息和可观察行为，AI Overview 的生成过程大致包含以下阶段：</p>
+
+    <table class="evidence-table">
+        <tr>
+            <td><span class="evidence-tag tag-fact">已知事实</span></td>
+            <td>Google 官方确认：使用 Query Fan-out（将一个查询拆解为多个相关子查询）、多 Agent 架构、Gemini Flash/Pro 分工处理不同任务强度的环节。</td>
+        </tr>
+        <tr>
+            <td><span class="evidence-tag tag-infer">合理推断</span></td>
+            <td>基于输出行为观察：AI Overview 的结构通常呈现「先概述、后细节」的层级，暗示生成过程不是单次完成，而是经过概要→展开→整合的多步处理。</td>
+        </tr>
+        <tr>
+            <td><span class="evidence-tag tag-unknown">待验证假设</span></td>
+            <td>具体迭代次数、每个环节的模型选择、fact-check loop 的触发条件——这些 Google 未公开，任何精确数字都是猜测。</td>
+        </tr>
+    </table>
+
+    <div class="callout">
+        <p><strong>对实战的意义：</strong>你需要在多个筛选环节都表现良好，而不只是在某一个维度上「满分」。</p>
+    </div>
+
+    <!-- Section 2 -->
+    <h2>二、内容如何在 Pipeline 中被筛选</h2>
+
+    <p>把 AI Overview 的生成过程粗略理解为三个阶段，有助于针对性优化：</p>
+
+    <h3>阶段一：检索（你的内容能不能被找到）</h3>
+
+    <p>在大模型生成任何内容之前，系统需要先确定哪些页面进入候选池。候选集的生成越来越依赖语义匹配信号，而不仅是传统关键词匹配——但传统排名信号（PageRank 等）仍然参与候选集的排序，两者并非互斥。</p>
+
+    <div class="callout">
+        <p><strong>核心问题：</strong>你的页面是否被 Googlebot 正确理解，语义向量与用户 Query 的距离是否足够近？</p>
+    </div>
+
+    <ul>
+        <li>确保页面的核心实体（Entity）在标题、H1、首段明确出现，不要埋在文章后半段</li>
+        <li>Query 意图对齐优先于关键词密度：想清楚用户实际想要什么答案，而不是他用了什么词</li>
+        <li>内部链接结构帮助 Google 理解你页面在知识图谱中的位置</li>
+    </ul>
+
+    <h3>阶段二：提取（你的内容能不能被读懂）</h3>
+
+    <p>进入候选池后，模型需要从你的页面提取关键信息。核心挑战是：自回归模型处理你的内容时，前置信息更容易形成语义锚点，影响后续提取的方向。</p>
+
+    <div class="callout">
+        <p><strong>核心问题：</strong>你的页面结构是否便于模型在早期 token 就建立正确的语义框架？</p>
+    </div>
+
+    <ul>
+        <li>首段（Lede）应直接回答核心问题，而不是「背景介绍」或「引出话题」</li>
+        <li>使用清晰的 H2/H3 层级，让模型能快速定位子话题</li>
+        <li>定义先行：如果你的页面涉及专业术语，在第一次出现时就给出定义，不要假设读者或模型能从上下文推断</li>
+    </ul>
+
+    <h3>阶段三：合成（你的内容能不能被引用）</h3>
+
+    <p>最终生成阶段，模型会整合多个来源，构建一个连贯的回答。这一阶段决定你的内容是被引用还是被「吸收后不署名」。</p>
+
+    <div class="callout">
+        <p><strong>核心问题：</strong>你的内容是否有独特的可引用价值，还是只是在重复已有信息？</p>
+    </div>
+
+    <ul>
+        <li>数据、案例、原创观点：这些是模型倾向于保留来源引用的内容类型</li>
+        <li>清晰的事实陈述比模糊的分析更容易被直接引用</li>
+        <li>作者权威性（E-E-A-T）影响模型在多源整合时的来源优先级——这有 Google 官方文档支持</li>
+    </ul>
+
+    <h3>关于异常情况：为什么有些「不优化」的页面也能进入 AI Overview？</h3>
+
+    <p>任何优化框架都需要面对反例。以下是两种常见的异常情况，值得诚实讨论：</p>
+
+    <p><strong>结构混乱但仍被引用的页面：</strong>通常原因是该页面包含其他来源没有的独特数据或权威性陈述。这说明「内容稀缺性」在某些情况下能覆盖结构劣势。</p>
+
+    <p><strong>短页面比长页面更容易被抽取：</strong>高度精炼、直接回答单一问题的短内容，有时比全面但冗长的长文更容易被整体引用。这暗示「抽取成本」也是一个变量。</p>
+
+    <p>这些反例不否定结构优化的价值，而是提醒我们：优化是提升概率，不是保证结果。</p>
+
+    <!-- Section 3 -->
+    <h2>三、关于 Schema 标记：证据混乱，谨慎对待</h2>
+
+    <p>这是目前 GEO 社区争议最大的话题之一。先摆清楚我们实际知道什么：</p>
+
+    <table class="evidence-table">
+        <tr>
+            <td><span class="evidence-tag tag-fact">已知事实</span></td>
+            <td>Google 官方明确表示：AI Overviews 不直接依赖 Schema Markup，不存在「加了 Schema 就会进 AI Overview」的机制。</td>
+        </tr>
+        <tr>
+            <td><span class="evidence-tag tag-infer">合理推断</span></td>
+            <td>部分案例研究显示结构化数据与 AI Overview 引用率之间存在相关性，但这些研究的样本量和方法论存在局限。可能的解释是：实施了完善 Schema 的页面通常在内容质量上也更扎实，是内容质量带来了引用率提升，而不是 Schema 本身。</td>
+        </tr>
+        <tr>
+            <td><span class="evidence-tag tag-unknown">待验证假设</span></td>
+            <td>「Schema 提升 AI Overview 引用率 X%」这类精确数字，目前没有经过同行评审的大规模实验支持。建议不要在客户报告中引用这些数字，除非你能提供原始数据来源。</td>
+        </tr>
+    </table>
+
+    <div class="callout">
+        <p><strong>实战建议：</strong>把 Schema 实施作为「内容信号完整性」的一部分，而不是 GEO 的核心杠杆。FAQ Schema、HowTo Schema 对传统 SEO 仍有价值，这是确定的；对 AI Overview 的直接影响，目前证据不足以支持强烈结论。</p>
+    </div>
+
+    <!-- Section 4 -->
+    <h2>四、可操作的内容优化框架</h2>
+
+    <p>基于以上分析，以下策略的可信度分级如下：</p>
+
+    <div class="strategy-section">
+        <span class="strategy-level level-high">高可信度策略</span>
+        <p style="margin-bottom: var(--space-md); color: var(--color-text-secondary); font-size: 0.9rem;">有直接逻辑或官方支持</p>
+
+        <div class="strategy-card">
+            <h4>① 前置语义锚点</h4>
+            <p>首段直接回答核心问题。不是「本文将探讨……」，而是直接给答案。这既符合用户体验，也符合自回归模型的处理特性——前置信息更早形成预测方向的语义锚点。</p>
+        </div>
+
+        <div class="strategy-card">
+            <h4>② 实体优先，关键词其次</h4>
+            <p>识别你话题中的核心实体，确保它在页面早期以标准形式出现。Google 的知识图谱（Knowledge Graph）是 AI Overview 的重要参考源之一，这有官方文档支持。</p>
+        </div>
+
+        <div class="strategy-card">
+            <h4>③ 清晰的层级结构</h4>
+            <p>H1 → H2 → H3 的逻辑层级不只是为了可读性，也帮助模型在提取阶段快速定位子话题。扁平化的文章结构在 AI Overview 时代是劣势。</p>
+        </div>
+
+        <div class="strategy-card">
+            <h4>④ 原创数据或观点</h4>
+            <p>提供其他来源没有的信息。这不只是 SEO 建议，而是在多源整合场景下让你的内容有不可替代性的基本逻辑。</p>
+        </div>
+    </div>
+
+    <div class="strategy-section">
+        <span class="strategy-level level-mid">中可信度策略</span>
+        <p style="margin-bottom: var(--space-md); color: var(--color-text-secondary); font-size: 0.9rem;">合理推断，建议测试</p>
+
+        <div class="strategy-card">
+            <h4>① 重复核心实体</h4>
+            <p>在长文中适度重复核心实体和 Query 意图关键词，可能通过 Attention 机制强化权重。建议控制在自然语言范围内，不要为了重复而重复。</p>
+        </div>
+
+        <div class="strategy-card">
+            <h4>② 分层内容结构</h4>
+            <p>对于信息型查询，「先概述、后深度」的结构与 AI Overview 的输出格式匹配更好。这是基于输出行为的推断，不是内部机制的确认。</p>
+        </div>
+    </div>
+
+    <div class="strategy-section">
+        <span class="strategy-level level-low">低可信度策略</span>
+        <p style="margin-bottom: var(--space-md); color: var(--color-text-secondary); font-size: 0.9rem;">假设层面，需自行验证</p>
+
+        <div class="strategy-card">
+            <h4>① Schema 标记对 AI Overview 的直接影响</h4>
+            <p>如前所述，相关性证据存在，但因果链不清晰。可以做，但不要把资源重心押在这里。</p>
+        </div>
+    </div>
+
+    <div class="callout">
+        <p>需要特别说明的是：即便结构完全优化，也不能保证进入 AI Overview。AI Overview 的触发本身有查询级别的条件（某些 Query 类型更容易触发，某些不会），这个变量独立于内容质量之外。<strong>优化是提升概率，不是控制结果。</strong></p>
+    </div>
+
+    <!-- Section 5 -->
+    <h2>五、如何建立自己的测试框架</h2>
+
+    <p>GEO 领域目前最缺的不是理论，而是方法论扎实的实测数据。如果你有网站资源，以下是一个基础测试框架：</p>
+
+    <h3>测量什么</h3>
+    <ul>
+        <li>通过 Google Search Console 追踪页面的 AI Overview 出现频率（Search Appearance 维度）</li>
+        <li>对比有/无特定优化的页面在相同 Query 下的表现</li>
+        <li>记录 AI Overview 引用你内容时的具体段落，反推模型在你页面的哪个位置提取了信息</li>
+    </ul>
+
+    <h3>控制变量</h3>
+    <ul>
+        <li>每次只改变一个变量（首段结构 / 实体密度 / Schema / 内容深度）</li>
+        <li>给足时间让 Google 重新抓取和评估（通常 2-4 周）</li>
+        <li>选择竞争程度相似的 Query 进行对比</li>
+    </ul>
+
+    <h3>诚实记录</h3>
+    <p>如果你发现某个策略无效，这个发现的价值不低于发现有效策略。GEO 领域目前充斥着样本量不足的「案例研究」，严谨的负面结果更稀缺。</p>
+
+    <hr class="section-divider" />
+
+    <!-- Conclusion -->
+    <h2>结语：在不确定中做出有根据的决策</h2>
+
+    <p>AI Overview 的内部机制不透明，这是现实。但这不意味着我们只能靠直觉。</p>
+
+    <div class="conclusion-grid">
+        <div class="conclusion-item">
+            <h4 style="color: var(--color-tag-fact);">我们确实知道</h4>
+            <p>Google 使用了多步骤 Pipeline；主流自回归模型的前置信息更容易形成语义锚点；E-E-A-T 是官方确认的评估维度；AI Overviews 不直接依赖 Schema。</p>
+        </div>
+        <div class="conclusion-item">
+            <h4 style="color: var(--color-tag-infer);">我们合理推断</h4>
+            <p>多步骤处理意味着内容需要在多个维度上过关；实体重复可能有 Attention 权重效应；输出结构暗示了某种层级化的生成过程。</p>
+        </div>
+        <div class="conclusion-item">
+            <h4 style="color: var(--color-tag-unknown);">我们不确定</h4>
+            <p>具体迭代次数、Schema 的直接因果影响、各因素的相对权重、以及触发 AI Overview 的完整条件集。</p>
+        </div>
+    </div>
+
+    <p><strong>在这个框架下做出决策，比引用一个你无法验证的精确数字更专业，也更值得信任。</strong></p>
+
+</article>
+
+<!-- Footer -->
+<footer class="site-footer">
+    <p>© YLSSEO Notes · <a href="https://www.ylsseo.com/geo/">GEO 系列文章</a></p>
+</footer>
+
 </body>
 </html>
